@@ -1,0 +1,5 @@
+PATIENT_ID,NAME,AGE,GENDER,RACE_DESC
+1,Alice,29,F,White
+2,Bob,,M,Black
+2,Bob,,M,Black
+3,Charlie,abc,M,Asian
