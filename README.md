@@ -18,21 +18,6 @@ Given two versions of a dataset:
 
 This is designed to run fully offline with Ollama and can be adapted to monitor Delta tables or Azure Blob Storage.
 
-📂 Project Structure
-
-agentic-etl/
-├── agents/
-│   ├── watcher.py        # Schema drift detection
-│   ├── validator.py      # Data quality validation
-│   ├── fixer.py          # LLM-based fixer (via DeepSeek)
-│   └── notifier.py       # Generates Markdown reports
-├── data/                 # Sample CSVs (v1 and v2)
-├── logs/
-│   ├── report.md         # Generated report
-│   └── suggested_fix.txt # Suggested fix from LLM
-├── config.yaml           # Paths to baseline and target file
-├── main.py               # Pipeline entry point
-└── requirements.txt
 
 🛠️ Setup Instructions
 
