@@ -1,36 +1,23 @@
-import os
-import json
 import requests
-from dotenv import load_dotenv
 
-load_dotenv()
-
-API_URL = "https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-alpha"
-HEADERS = {
-    "Authorization": f"Bearer {os.getenv('HUGGINGFACE_API_KEY')}",
-    "Content-Type": "application/json"
-}
-
-def suggest_fixes(validation_results: dict) -> str:
-    prompt = f"""
-You are a senior data engineer. You are given validation issues from a dataset:
-{json.dumps(validation_results, indent=2)}
-
-Suggest a Python pandas code block that can fix these issues safely and log them.
-Don't include import statements.
-Just code inside a function called `fix_data(df: pd.DataFrame) -> pd.DataFrame`.
-Make sure it doesn't fail if columns are missing.
-    """
-
+def suggest_fixes(validation_results: str) -> str:
+    """Uses local Ollama model (deepseek-coder:6.7b) to suggest code fixes."""
     payload = {
-        "inputs": prompt,
-        "parameters": {
-            "max_new_tokens": 512,
-            "temperature": 0.5,
-            "do_sample": True,
-        }
+        "model": "deepseek-coder:6.7b",
+        "prompt": f"""You are a senior data engineer. You are given the following validation results from a Pandas DataFrame:
+        {validation_results}
+
+        Suggest a Python pandas code block that can fix these issues safely and log them.
+        Don't include import statements.
+        Just return code inside a function called `fix_data(df: pd.DataFrame) -> pd.DataFrame`.
+        Make sure it does not fail if a column is missing.
+        """,
+        "stream": False
     }
 
-    response = requests.post(API_URL, headers=HEADERS, json=payload)
-    response.raise_for_status()
-    return response.json()[0]["generated_text"].strip()
+    try:
+        response = requests.post("http://localhost:11434/api/generate", json=payload)
+        response.raise_for_status()
+        return response.json()["response"]
+    except requests.RequestException as e:
+        raise RuntimeError(f"Failed to connect to Ollama: {e}")

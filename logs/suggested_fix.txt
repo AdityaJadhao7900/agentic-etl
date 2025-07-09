@@ -1,0 +1,48 @@
+```python
+Here is the Python pandas code block that can fix these issues safely and log them inside a function called `fix_data()`:
+
+```python
+import pandas as pd
+
+def fix_data(df):
+    # Initialize counters
+    nulls = {}
+    duplicates = 0
+    invalid_ages = 0
+    
+    # Check for null values in 'AGE' column and update counter if it exists
+    if 'AGE' in df.columns:
+        nulls['AGE'] = df[df['AGE'].isnull()].shape[0]
+        
+    # Check for duplicate rows and update counter
+    duplicates = df.duplicated().sum()
+    
+    # Check for invalid ages (assuming 'AGE' column should be > 0) 
+    if 'AGE' in df.columns:
+        invalid_ages = (df[df['AGE'] <= 0]).shape[0]
+        
+    # Drop duplicates and nulls records safely
+    try:
+        df.dropna(subset=['AGE'], inplace=True)  # drop 'null' values in AGE column
+    except KeyError:                     # if 'AGE' is not a column, do nothing
+        pass
+    
+    df.drop_duplicates(inplace=True)       # drop duplicate rows
+        
+    # Remove invalid ages (assuming they should be > 0) 
+    if 'AGE' in df.columns:
+        df = df[df['AGE']>0]  
+    
+    validation_results = {'nulls': nulls, 'duplicates': duplicates, 'invalid_ages': invalid_ages}
+    
+    return df, validation_results
+```
+This function works as follows:
+1. Initialize counters for `nulls`, `duplicates` and `invalid_ages`.
+2. If the 'AGE' column exists in the DataFrame, it counts how many null values are there in that column and updates the counter.
+3. It calculates how many duplicate rows exist in the DataFrame.
+4. Again if the 'AGE' column exists in the DataFrame, it counts how many invalid ages (where age <= 0) are there in that column. 
+5. Then, the function tries to drop null and duplicated records from DataFrame. If a specific record does not exist in DataFrame, then KeyError will be caught and ignored by 'pass' statement.
+6. Finally, it returns fixed DataFrame along with validation results.
+
+```
