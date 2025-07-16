@@ -69,11 +69,39 @@ Validation Results: {'nulls': {'AGE': 2}, 'duplicates': 1, 'invalid_ages': 3}
 >> Running Fixer Agent...
 Suggested Fix:
 
-def fix_data(df: pd.DataFrame) -> pd.DataFrame:
-    ...
+Here is the Python pandas code block that can handle these issues safely and log them in a dictionary.
 
->> Generating Report via Notifier Agent...
-✅ Logs saved to logs/report.md and logs/suggested_fix.txt
+```python
+def fix_data(df):
+    validation_results = {}  # Initialize an empty dict for validation results
+    
+    if 'AGE' not in df.columns:
+        return df, validation_results
+
+    # Checking for nulls
+    if df['AGE'].isnull().sum() > 0:
+        df = df[df['AGE'].notna()]  # Remove rows with null ages
+        validation_results['nulls'] = 1  
+
+    # Checking for duplicates
+    if df.duplicated(subset='AGE').sum() > 0:
+        df = df.drop_duplicates(subset='AGE')  # Drop duplicate rows with the same age
+        validation_results['duplicates'] = 1  
+    
+    # Checking for invalid ages (assuming ages less than 0 as invalid)
+    if (df['AGE'] < 0).sum() > 0:
+        df = df[df['AGE'] >= 0]  # Drop rows with negative or zero age
+        validation_results['invalid_ages'] = 1  
+    
+    return df, validation_results
+```
+In this function, it first checks if the 'AGE' column is present in the DataFrame. If not, it returns the original DataFrame and an empty dictionary for validation results as there are no issues to fix. Then, it handles each issue separately:
+- For nulls, it removes rows that contain null values in the 'AGE' column. 
+- For duplicates, it drops duplicate rows based on the age. 
+- Finally, for invalid ages (assuming those less than zero as invalid), it also removes these rows from the DataFrame.
+
+It logs the number of issues handled by each step into a dictionary and returns this along with the modified DataFrame. It should be noted that if a column is missing in the original DataFrame, the function will return an identical DataFrame without any changes to it as no issues exist in such a case.
+
 
 📈 Next Steps
 
